@@ -1,5 +1,3 @@
-import patientService from "./services/patientService";
-
 export interface Diagnostics {
 	code: string;
 	name: string;
@@ -15,4 +13,10 @@ export interface Patients {
 	occupation: string;
 }
 
-export type NoSSNPatients = Omit<Patients, 'ssn'>
+export type NoSSNPatients = Omit<Patients, 'ssn'>;
+export type NewPatients = Omit<Patients, 'id'>;
+export enum Gender {
+	male = 'male',
+	female = 'female',
+	other = 'other'
+}
