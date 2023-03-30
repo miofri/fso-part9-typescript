@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { Note } from './types';
+import axios from 'axios';
+import { createNote, getAllNotes } from './services/noteService';
 
 const App = () => {
 	const [newNote, setNewNote] = useState('');
@@ -8,13 +10,15 @@ const App = () => {
 
 	const noteCreation = (event: React.SyntheticEvent) => {
 		event.preventDefault();
-		const noteToAdd = {
-			content: newNote,
-			id: notes.length + 1
-		};
-		setNotes(notes.concat(noteToAdd));
+		createNote({ content: newNote }).then((data) => {
+			setNotes(notes.concat(data));
+		});
 		setNewNote('');
 	};
+
+	useEffect(() => {
+		getAllNotes().then((data) => setNotes(data));
+	}, []);
 
 	return (
 		<div>

@@ -1,6 +1,7 @@
 import { isPropertySignature } from 'typescript';
 import { CoursePart } from './components/component-types';
 import { Total, Content, Header } from './components/components';
+import { useState } from 'react';
 
 const App = () => {
 	const courseName = 'Half Stack application development';
