@@ -1,42 +1,44 @@
 import axios, { AxiosError } from 'axios';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
-import { text } from 'stream/consumers';
-import { NonSensitiveDiaryEntry, NewDiaryEntry } from './types';
+import {
+	NonSensitiveDiaryEntry,
+	NewDiaryEntry,
+	Visibility,
+	Weather
+} from './types';
 
 const InputForm = () => {
-	const [formData, setFormData] = useState<NewDiaryEntry[]>([]);
+	const [formData, setFormData] = useState<NewDiaryEntry | undefined>();
 	const [errorMsg, setErrorMsg] = useState<string>('');
-	let newFormObject: any;
 
-	const creatingFormObject = (event: any) => {
-		let newForm: any = {};
-		for (let index = 0; index < 4; index++) {
-			const entryName = event?.target[index].name;
-			const entryValue = event?.target[index].value;
-			const newObject = [
-				{
-					[entryName]: entryValue
-				}
-			];
-			newForm = Object.assign(newForm, ...newObject);
-		}
-		return newForm;
+	const initialState: NewDiaryEntry = {
+		date: '',
+		visibility: Visibility.Great,
+		weather: Weather.Sunny,
+		comment: ''
+	};
+	const [values, setValues] = useState(initialState);
+
+	const handleInput = (event: React.ChangeEvent<HTMLElement>) => {
+		const { name, value } = event.target as HTMLInputElement;
+
+		setValues({ ...values, [name]: value });
+		console.log(values);
 	};
 
-	const handleSubmit = async (event: any) => {
+	const handleSubmit = (event: React.FormEvent<HTMLElement>) => {
 		setErrorMsg('');
 		event.preventDefault();
-		newFormObject = await creatingFormObject(event);
-		setFormData(newFormObject);
+		setFormData(values);
 	};
 
 	useEffect(() => {
 		console.log('i am form data', formData);
-		if (formData.length !== 0) {
+		if (formData !== undefined) {
 			axios
 				.post('http://localhost:3001/api/diaries/', formData)
-				.then((response) => response.data)
+				.then((response) => console.log(response.data))
 				.catch((err) => {
 					const errorAxios = err as AxiosError;
 					setErrorMsg(errorAxios.response?.data as string);
@@ -50,10 +52,15 @@ const InputForm = () => {
 			<div style={{ color: 'red' }}>{errorMsg}</div>
 			<form onSubmit={handleSubmit}>
 				<label htmlFor="date">date </label>
-				<input type="date" name="date"></input>
+				<input
+					type="date"
+					name="date"
+					value={values.date}
+					onChange={handleInput}
+				></input>
 				<br></br>
 				<label htmlFor="visibility">visibility </label>
-				<select name="visibility">
+				<select name="visibility" onChange={handleInput}>
 					<option value="great">great</option>
 					<option value="good">good</option>
 					<option value="ok">ok</option>
@@ -61,7 +68,7 @@ const InputForm = () => {
 				</select>{' '}
 				<br></br>
 				<label htmlFor="weather">weather </label>
-				<select name="weather">
+				<select name="weather" onChange={handleInput}>
 					<option value="sunny">sunny</option>
 					<option value="rainy">rainy</option>
 					<option value="cloudy">cloudy</option>
@@ -70,7 +77,7 @@ const InputForm = () => {
 				</select>{' '}
 				<br></br>
 				<label htmlFor="comment">comment </label>
-				<input type="text" name="comment"></input>
+				<input type="text" name="comment" onChange={handleInput}></input>
 				<br></br>
 				<button type="submit" value="submit">
 					submit
